@@ -7,21 +7,21 @@ import theano.tensor as T
 
 
 # from sklearn import preprocessing
-from cnn import CNN
+from cnn_structure import CNN_struct
 import pickle as cPickle
 from logistic_sgd import LogisticRegression
 from CNN_Prediction import cnn_predict
 
-def fit(data, labels, filename = 'weights.pkl'):
-    fit_predict(data, labels, filename = filename)
+def fit(classifier, data, labels, filename = 'weights/weights.pkl'):
+    fit_predict(classifier, data, labels, filename = filename)
 
 def predict(test_dataset, filename = 'weights.pkl' ):
     return cnn_predict(filename= filename, test_datasets=[test_dataset])
 
 
-def fit_predict(data, labels, filename, learning_rate=0.01, n_epochs=100, nkerns=[32, 50, 64, 50, 32, 20], batch_size=66, seed=8000):
+def fit_predict(classifier, data, labels, filename, learning_rate=0.0001, n_epochs=100, batch_size = 66):
 
-    rng = numpy.random.RandomState(seed)
+    #//TODO there is two x now one here and the second in CNN class must be checked
     x = T.tensor4('x')  # the data is presented as rasterized images
     y = T.ivector('y')  # the labels are presented as 1D vector of [int] labels
     index = T.lscalar()  # index to a [mini]batch
@@ -32,14 +32,7 @@ def fit_predict(data, labels, filename, learning_rate=0.01, n_epochs=100, nkerns
     print '... building the model'
 
     # construct the CNN class
-    classifier = CNN(
-        rng=rng,
-        input=x,
-        nkerns = nkerns,
-        batch_size = batch_size,
-        image_size=[100,100],
-        image_dimension=3
-    )
+
 
     train_set_x = theano.shared(numpy.asarray(data, dtype=theano.config.floatX))
     train_set_y = T.cast(theano.shared(numpy.asarray(labels, dtype=theano.config.floatX)), 'int32')
@@ -73,7 +66,7 @@ def fit_predict(data, labels, filename, learning_rate=0.01, n_epochs=100, nkerns
 
     validate_model = theano.function(
         inputs=[index],
-        outputs= classifier.layer8.get_p_y_given_x(y), #get_p_y_given_x(y), #grads,
+        outputs= classifier.layer8.errors(y), #.get_p_y_given_x(y), #get_p_y_given_x(y), #grads,
         givens={
             x: train_set_x[index * batch_size:(index + 1) * batch_size],
             y: train_set_y[index * batch_size:(index + 1) * batch_size]
@@ -94,27 +87,36 @@ def fit_predict(data, labels, filename, learning_rate=0.01, n_epochs=100, nkerns
     # here is an example how to print the current value of a Theano variable: print test_set_x.shape.eval()
 
     # start training
-    while (epoch < n_epochs):
+    validation_losses = 1
+    while (validation_losses > 0): #epoch < n_epochs
 
         # learning_rate = learning_rate * (1 / (1 + 0.001 * epoch))
         # print "learning rate: %f" %learning_rate
 
         # py,log_py = validate_model(0)
+
         # y_x, p_y = validate_model(0)
-        # print ""
-        # print y_x
-        # print p_y
-        print classifier.__getstate__()[0]
+        # print "y giving x"
+        # print y_x[0:10,:]
+        # print "softamx y"
+        # print p_y[0:10,:]
+
+        # print_weights_values(classifier)
 
         epoch = epoch + 1
         print "epoch %d" %epoch
         avg_cost = train_model(0)
         print "learning cost: %f" %avg_cost
 
-        # validation_losses, predict_y = validate_model(0)
+        validation_losses, predict_y = validate_model(0)
 
+        print "validation loss"
+        print validation_losses
+        print "precited y's"
+        print predict_y
 
-
+        # if validation_losses == 0:
+        #     break
 
         # if (epoch) % 5  == 0:
             # compute zero-one loss on validation set
@@ -141,3 +143,16 @@ def fit_predict(data, labels, filename, learning_rate=0.01, n_epochs=100, nkerns
 
     end_time = time.clock()
     print >> sys.stderr, ('The code ran for %.2fm' % ((end_time - start_time) / 60.))
+
+def print_weights_values(classifier):
+    print "conv 0:"
+    print classifier.__getstate__()[16][0][0]
+
+    print "conv 3:"
+    print classifier.__getstate__()[10][0][0]
+
+    print "hid 1:"
+    print classifier.__getstate__()[4][0]
+
+    print "softmax "
+    print classifier.__getstate__()[0][0]

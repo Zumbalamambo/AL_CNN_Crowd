@@ -2,7 +2,7 @@ import numpy
 import theano
 import theano.tensor as T
 
-from cnn import CNN
+from cnn_structure import CNN_struct
 import pickle as cPickle
 from utils import tile_raster_images
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ def cnn_predict(filename, test_datasets = [], nkerns=[20, 50, 50], batch_size=50
     params_range = int(numpy.floor(len(numpy.array(test_datasets[0])) / batch_size))
 
 
-    classifier_2 = CNN(
+    classifier_2 = CNN_struct(
         rng=rng,
         input=x,
         nkerns=nkerns,

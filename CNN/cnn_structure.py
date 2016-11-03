@@ -2,7 +2,7 @@
 from logistic_sgd import LogisticRegression
 from Constructor import *
 
-class CNN(object):
+class CNN_struct(object):
 
     def __getstate__(self):
         weights = [p.get_value() for p in self.params]
