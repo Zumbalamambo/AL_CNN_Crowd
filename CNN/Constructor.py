@@ -3,7 +3,7 @@ from theano.tensor.signal import pool
 from theano.tensor.nnet import conv
 import theano.tensor as T
 import theano
-
+from weights_initialize import *
 
 import numpy
 
@@ -51,22 +51,11 @@ class HiddenLayer(object):
         #        We have no info for other function, so we use the same as
         #        tanh.
         if W is None:
-            W_values = numpy.asarray(
-                rng.uniform(
-                    low=-numpy.sqrt(6. / (n_in + n_out)),
-                    high=numpy.sqrt(6. / (n_in + n_out)),
-                    size=(n_in, n_out)
-                ),
-                dtype=theano.config.floatX
-            )
-
-            if activation == theano.tensor.nnet.sigmoid:
-                W_values *= 4
-
-            W = theano.shared(value=W_values, name='W', borrow=True)
+            W_shape = (n_in,n_out)
+            w_values, b_values = generate_weights(W_shape, 0, 0, 'relu', n_out)
+            W = theano.shared(value=w_values, name='W', borrow=True)
 
         if b is None:
-            b_values = numpy.zeros((n_out,), dtype=theano.config.floatX)
             b = theano.shared(value=b_values, name='b', borrow=True)
 
         self.W = W
@@ -121,18 +110,12 @@ class LeNetConvPoolLayer(object):
         #   pooling size
         fan_out = (filter_shape[0] * numpy.prod(filter_shape[2:]) /
                    numpy.prod(poolsize))
-        # initialize weights with random weights
-        W_bound = numpy.sqrt(6. / (fan_in + fan_out))
-        self.W = theano.shared(
-            numpy.asarray(
-                rng.uniform(low=-W_bound, high=W_bound, size=filter_shape),
-                dtype=theano.config.floatX
-            ),
-            borrow=True
-        )
 
-        # the bias is a 1D tensor -- one bias per output feature map
-        b_values = numpy.zeros((filter_shape[0],), dtype=theano.config.floatX)
+        # initialize weights with random weights and biases
+        w_values, b_values = generate_weights(filter_shape, fan_in, fan_out, 'relu', filter_shape[0])
+
+        self.W = theano.shared(w_values, borrow=True )
+
         self.b = theano.shared(value=b_values, borrow=True)
 
         # convolve input feature maps with filters

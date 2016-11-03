@@ -6,6 +6,7 @@ import time
 import numpy
 import theano
 import theano.tensor as T
+from weights_initialize import *
 
 class LogisticRegression(object):
     """Multi-class Logistic Regression Class
@@ -36,23 +37,11 @@ class LogisticRegression(object):
         # initialize with 0 the weights W as a matrix of shape (n_in, n_out)
         #self.x = input
         self.inp = input
-        self.W = theano.shared(
-            value=numpy.zeros(
-                (n_in, n_out),
-                dtype=theano.config.floatX
-            ),
-            name='W',
-            borrow=True
-        )
-        # initialize the baises b as a vector of n_out 0s
-        self.b = theano.shared(
-            value=numpy.zeros(
-                (n_out,),
-                dtype=theano.config.floatX
-            ),
-            name='b',
-            borrow=True
-        )
+        W_shape = (n_in, n_out)
+        w_values, b_values = generate_weights(W_shape, 0, 0, 'relu', n_out)
+
+        self.W = theano.shared(value=w_values, name='W', borrow=True)
+        self.b = theano.shared(b_values, name='b', borrow=True)
 
         # symbolic expression for computing the matrix of class-membership
         # probabilities
