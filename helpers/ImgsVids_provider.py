@@ -71,7 +71,9 @@ def Image_slicer(img, head_locations):
                             y = head_locations[idx][1] - j
                             locations = np.array([x, y])
                             points.append(locations)
-            data = np.array([image_slice, points])
+                data = np.array([image_slice, points])
+            else:
+                data = np.array(image_slice)
             grapper.append(data)
 
 
@@ -82,6 +84,30 @@ def Image_slicer(img, head_locations):
 #fit the data into the network with reference to it is batch size which in this case is one
 #the image size depends on the stride size in the slicing function ex. 100x100
 
+def Image_predicted_labels(img, labels):
+    stride = 100
+    h = img.shape[0]
+    w = img.shape[1]
+    c = 0
+
+    for j in range(0,h,stride):
+        for i in range(0, w, stride):
+            if (j+stride) < h and (i + stride) < w:
+                if labels[c] == 1:
+                    img[j:j+stride, i:i+stride, 2] = 0
+            elif (j+stride) < h and (i + stride) > w:
+                if labels[c] == 1:
+                    img[j:j + stride, i:w, 2] = 0
+            elif (j+stride) > h and (i + stride) < w:
+                if labels[c] == 1:
+                    img[j:h, i:i+stride, 2] = 0
+            else:
+                if labels[c] == 1:
+                    img[j:h, i:w, 2] = 0
+
+            c += 1
+
+    return img
 
 def preview_img_points(grapper):
     img,points = grapper[30]

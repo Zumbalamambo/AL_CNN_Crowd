@@ -27,17 +27,22 @@ class Online_learning(QMainWindow, Ui_MainWindow):
         self.head_locations = []
 
         self.showImage()
-        self.classifier = CNN('weights/weights.pkl')
+
+        self.cnn = CNN('weights/weights.pkl')
+
 
     def prediction(self):
-        sliced_imgs = Image_slicer(self.current_img)
-        # CNN_fit(sliced_imgs)
+        sliced_imgs = Image_slicer(self.current_img, self.head_locations)
+        # test_x = arrange_training_input(sliced_imgs)
+        prediction = self.cnn.predict(sliced_imgs)
+        img = Image_predicted_labels(self.current_img, prediction)
+        self.Impose_image(img)
 
     def learn(self):
         sliced_imgs = Image_slicer(self.current_img, self.head_locations)
         train_x, train_y = arrange_training_input(sliced_imgs)
-        fit_predict(train_x, train_y)
-        # self.classifier.fit(train_x,train_y)
+        # fit_predict(self.cnn, train_x, train_y)
+        self.cnn.fit(train_x,train_y)
 
 
     def addLocation(self,loc_x, loc_y):
@@ -74,10 +79,11 @@ class Online_learning(QMainWindow, Ui_MainWindow):
                 self.img_idx = 0
             self.current_img = cv2.imread(join(self.file_path, self.imgs_list[self.img_idx]))
             self.current_img = cv2.resize(self.current_img, (1024,576))
-            pixmap = convert_cv2_pixmap(self.current_img)
-        self.Impose_image(pixmap)
 
-    def Impose_image(self, pixmap):
+        self.Impose_image(self.current_img)
+
+    def Impose_image(self, img):
+        pixmap = convert_cv2_pixmap(img)
         self.lbl_image.setPixmap(pixmap)
         self.lbl_image.show()
 

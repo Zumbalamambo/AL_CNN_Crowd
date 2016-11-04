@@ -131,6 +131,8 @@ class CNN_struct(object):
         self.params = self.layer8.params + self.layer7.params + self.layer6.params + \
                       self.layer5.params + self.layer4.params + self.layer3.params + self.layer2.params + self.layer1.params + self.layer0.params
 
+    def get_output(self):
+        return self.layer8.get_y_pred()
 
     def get_flatted_params(self):
         return self.layer8.output

@@ -12,34 +12,17 @@ import pickle as cPickle
 from logistic_sgd import LogisticRegression
 from cnn_Prediction import cnn_predict
 
-def fit_predict(data, labels, learning_rate=0.0001, n_epochs=100, batch_size = 66):
+def fit_predict(classifier, x, data, labels, batch_size, learning_rate=0.0001, n_epochs=100):
 
-
-    #//TODO there is two x now one here and the second in CNN class must be checked
-    seed = 8000
-    rng = numpy.random.RandomState(seed)
-
-    nkerns = [32, 50, 64, 50, 32, 20]
-
-
-    x = T.tensor4('x')  # the data is presented as rasterized images
     y = T.ivector('y')  # the labels are presented as 1D vector of [int] labels
     index = T.lscalar()  # index to a [mini]batch
-
-    classifier = CNN_struct(
-        rng=rng,
-        input=x,
-        nkerns=nkerns,
-        batch_size=batch_size,
-        image_size=[100, 100],
-        image_dimension=3
-    )
 
     train_set_x = theano.shared(numpy.asarray(data, dtype=theano.config.floatX))
     train_set_y = T.cast(theano.shared(numpy.asarray(labels, dtype=theano.config.floatX)), 'int32')
     print train_set_y.eval()
     # valid_set_x = theano.shared(numpy.asarray(valid_set_x, dtype=theano.config.floatX))
     # valid_set_y = T.cast(theano.shared(numpy.asarray(valid_set_y, dtype=theano.config.floatX)), 'int32')
+
 
     cost = classifier.layer8.negative_log_likelihood(y)
     # create a list of gradients for all model parameters
@@ -49,7 +32,7 @@ def fit_predict(data, labels, learning_rate=0.0001, n_epochs=100, batch_size = 6
     updates = [
         (param_i, param_i - learning_rate * grad_i)
         for param_i, grad_i in zip(classifier.params, grads)
-    ]
+        ]
 
     # compiling a Theano function `train_model` that returns the cost, but
     # in the same time updates the parameter of the model based on the rules defined in `updates`
@@ -65,15 +48,13 @@ def fit_predict(data, labels, learning_rate=0.0001, n_epochs=100, batch_size = 6
 
     validate_model = theano.function(
         inputs=[index],
-        outputs= classifier.layer8.errors(y), #.get_p_y_given_x(y), #get_p_y_given_x(y), #grads,
+        outputs=classifier.layer8.errors(y),  # .get_p_y_given_x(y), #get_p_y_given_x(y), #grads,
         givens={
             x: train_set_x[index * batch_size:(index + 1) * batch_size],
             y: train_set_y[index * batch_size:(index + 1) * batch_size]
         },
         on_unused_input='ignore'
     )
-
-
 
     ###############
     # TRAIN MODEL #
