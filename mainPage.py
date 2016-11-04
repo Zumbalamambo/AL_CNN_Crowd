@@ -1,9 +1,11 @@
 import sys
 
-from Online_GUI_Learning.helpers.ImgsVids_provider import *
+from helpers.ImgsVids_provider import *
 from PyQt4.QtCore import *
-
+from CNN.helper import *
+from CNN.cnn_training import *
 from main_gui import Ui_MainWindow
+from CNN.CNN import *
 
 
 class Online_learning(QMainWindow, Ui_MainWindow):
@@ -25,6 +27,7 @@ class Online_learning(QMainWindow, Ui_MainWindow):
         self.head_locations = []
 
         self.showImage()
+        self.classifier = CNN('weights/weights.pkl')
 
     def prediction(self):
         sliced_imgs = Image_slicer(self.current_img)
@@ -33,8 +36,8 @@ class Online_learning(QMainWindow, Ui_MainWindow):
     def learn(self):
         sliced_imgs = Image_slicer(self.current_img, self.head_locations)
         train_x, train_y = arrange_training_input(sliced_imgs)
-        # train_x = CNN_fit(train_x)
-        fit(train_x,train_y)
+        fit_predict(train_x, train_y)
+        # self.classifier.fit(train_x,train_y)
 
 
     def addLocation(self,loc_x, loc_y):
