@@ -10,37 +10,36 @@ import theano.tensor as T
 from cnn_structure import CNN_struct
 import pickle as cPickle
 from logistic_sgd import LogisticRegression
-from CNN_Prediction import cnn_predict
+from cnn_Prediction import cnn_predict
 
-def fit(classifier, data, labels, filename = 'weights/weights.pkl'):
-    fit_predict(classifier, data, labels, filename = filename)
+def fit_predict(data, labels, learning_rate=0.0001, n_epochs=100, batch_size = 66):
 
-def predict(test_dataset, filename = 'weights.pkl' ):
-    return cnn_predict(filename= filename, test_datasets=[test_dataset])
-
-
-def fit_predict(classifier, data, labels, filename, learning_rate=0.0001, n_epochs=100, batch_size = 66):
 
     #//TODO there is two x now one here and the second in CNN class must be checked
+    seed = 8000
+    rng = numpy.random.RandomState(seed)
+
+    nkerns = [32, 50, 64, 50, 32, 20]
+
+
     x = T.tensor4('x')  # the data is presented as rasterized images
     y = T.ivector('y')  # the labels are presented as 1D vector of [int] labels
     index = T.lscalar()  # index to a [mini]batch
 
-    ######################
-    # BUILD ACTUAL MODEL #
-    ######################
-    print '... building the model'
-
-    # construct the CNN class
-
+    classifier = CNN_struct(
+        rng=rng,
+        input=x,
+        nkerns=nkerns,
+        batch_size=batch_size,
+        image_size=[100, 100],
+        image_dimension=3
+    )
 
     train_set_x = theano.shared(numpy.asarray(data, dtype=theano.config.floatX))
     train_set_y = T.cast(theano.shared(numpy.asarray(labels, dtype=theano.config.floatX)), 'int32')
     print train_set_y.eval()
     # valid_set_x = theano.shared(numpy.asarray(valid_set_x, dtype=theano.config.floatX))
     # valid_set_y = T.cast(theano.shared(numpy.asarray(valid_set_y, dtype=theano.config.floatX)), 'int32')
-
-
 
     cost = classifier.layer8.negative_log_likelihood(y)
     # create a list of gradients for all model parameters
@@ -136,10 +135,6 @@ def fit_predict(classifier, data, labels, filename, learning_rate=0.0001, n_epoc
             #     )
             # )
 
-    # save parameters
-    f = file(filename, 'wb')
-    cPickle.dump(classifier.__getstate__(), f, protocol=cPickle.HIGHEST_PROTOCOL)
-    f.close()
 
     end_time = time.clock()
     print >> sys.stderr, ('The code ran for %.2fm' % ((end_time - start_time) / 60.))
