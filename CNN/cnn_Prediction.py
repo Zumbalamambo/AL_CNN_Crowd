@@ -11,27 +11,10 @@ import matplotlib.cm as cm
 
 
 def cnn_predict(classifier,x, test_datasets, batch_size):
-    seed = 8000
-    rng = numpy.random.RandomState(seed)
-    nkerns = [32, 50, 64, 50, 32, 20]
 
-    batch_size = batch_size
-    x = T.tensor4('x')
     y = T.ivector('y')  # the labels are presented as 1D vector of [int] labels
     index = T.lscalar()  # index to a [mini]batch
 
-    classifier = CNN_struct(
-        rng=rng,
-        input=x,
-        nkerns=nkerns,
-        batch_size=batch_size,
-        image_size=[100, 100],
-        image_dimension=3
-    )
-
-    f = open('weights/weights.pkl', 'rb')
-    classifier.__setstate__(cPickle.load(f))
-    f.close()
 
     # params_range = int(numpy.floor(len(numpy.array(test_datasets[0])) / batch_size))
 
@@ -46,7 +29,7 @@ def cnn_predict(classifier,x, test_datasets, batch_size):
 
         # just zeroes
         # test_labels = T.cast(theano.shared(numpy.asarray(numpy.zeros(batch_size), dtype=theano.config.floatX)), 'int32')
-    print numpy.array(test_datasets).shape
+
     test_data = theano.shared(numpy.asarray(test_datasets, dtype=theano.config.floatX))
 
     output = classifier.layer8.get_y_pred()
@@ -146,33 +129,7 @@ def visulaize_cov_images(s):
         filename = "img/%d.png" % i
         plt.savefig(filename)
 
-def construct_W_image(params):
-    """
-    :param network wieghts and bases in this structure:
-     (layer3.W, layer3.b,
-      layer2.W, layer2.b,
-      layer1.W, layer1.b,
-      layer0.W, layer0.b)
-    :return: Construct image from the weight matrix and return the image
-    """
 
-    layer5_w, layer5_b, layer4_w, layer4_b, layer3_w, layer3_b, layer2_w, layer2_b, layer1_w, layer1_b, layer0_w, layer0_b = params
-
-    layer0_w = numpy.reshape(layer0_w, (20, 121))
-    # print ("len lay_0 W: ", layer1_w.shape)
-    # print ("len lay_0 b: ", len(layer1_b))
-
-    f, s = 4, 5
-    image =  Image.fromarray(
-        tile_raster_images(
-            X=layer0_w,
-            img_shape=(11, 11),
-            tile_shape=(f, s),
-            tile_spacing=(1, 1)
-        )
-    )
-
-    save_image(image, "layer_0.png")
 
 
 def save_image(image, file_name):

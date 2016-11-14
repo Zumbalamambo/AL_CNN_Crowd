@@ -154,5 +154,5 @@ class LeNetConvPoolLayer(object):
     def get_conv_value(self):
         # self.input = self.input.reshape((1, 1, 28, 28))
         # pp = T.dot(self.input, self.W) + self.b
-        return self.W
+        return self.convs_out, self.transformed + self.b.dimshuffle('x', 0, 'x', 'x'), self.output
         # return T.nnet.relu(self.convs_out)

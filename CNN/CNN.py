@@ -3,6 +3,7 @@ import theano.tensor as T
 from cnn_structure import *
 from cnn_training import fit_predict
 from cnn_Prediction import cnn_predict
+from helper import CNN_tester
 
 import pickle as cPickle
 import os.path
@@ -12,7 +13,7 @@ class CNN:
 
         seed = 8000
         rng = numpy.random.RandomState(seed)
-        nkerns = [32, 50, 64, 50, 32, 20]
+        self.nkerns = [32, 50, 64, 50, 32, 20]
 
         self.batch_size = batch_size
         self.x = T.tensor4('x')  # the data is presented as rasterized images
@@ -26,7 +27,7 @@ class CNN:
         self.classifier = CNN_struct(
             rng=rng,
             input=self.x,
-            nkerns=nkerns,
+            nkerns=self.nkerns,
             batch_size=batch_size,
             image_size=[100, 100],
             image_dimension=3
@@ -54,4 +55,7 @@ class CNN:
 
     def predict(self, test_dataset):
         return cnn_predict(self.classifier, self.x, test_dataset, self.batch_size)
+
+    def tester_only(self, test_dataset,layer):
+        return CNN_tester(self.classifier, self.x, test_dataset, self.batch_size, layer)
 

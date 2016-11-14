@@ -19,7 +19,7 @@ def fit_predict(classifier, x, data, labels, batch_size, learning_rate=0.0001, n
 
     train_set_x = theano.shared(numpy.asarray(data, dtype=theano.config.floatX))
     train_set_y = T.cast(theano.shared(numpy.asarray(labels, dtype=theano.config.floatX)), 'int32')
-    print train_set_y.eval()
+    # print train_set_y.eval()
     # valid_set_x = theano.shared(numpy.asarray(valid_set_x, dtype=theano.config.floatX))
     # valid_set_y = T.cast(theano.shared(numpy.asarray(valid_set_y, dtype=theano.config.floatX)), 'int32')
 
@@ -92,8 +92,9 @@ def fit_predict(classifier, x, data, labels, batch_size, learning_rate=0.0001, n
 
         print "validation loss"
         print validation_losses
-        print "precited y's"
-        print predict_y
+        print "\n"
+        # print "precited y's"
+        # print predict_y
 
         # if validation_losses == 0:
         #     break

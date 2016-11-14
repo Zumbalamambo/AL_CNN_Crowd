@@ -1,5 +1,6 @@
 import numpy as np
-
+import theano
+import theano.tensor as T
 
 def arrange_training_input(data):
     labels = np.zeros(len(data))
@@ -13,16 +14,37 @@ def arrange_training_input(data):
 
 
 
-def CNN_fit(data):
-    # data_counts = len(data)
-    # features_count = len(data[0].flatten())
-    #
-    # train_x = np.zeros((data_counts, features_count))
-    # for i in range(data_counts):
-    #     train_x[i] = data[i].transpose(2, 0, 1).reshape(3, 100, 100).flatten()
-        # cv2.imshow('img', t[2,:,:])
-    # predict(train_x)
-    return 0
+def CNN_tester(classifier,x, test_data, batch_size, layer):
+
+    index = T.lscalar()
+    test_data = theano.shared(np.asarray(test_data, dtype=theano.config.floatX))
+
+    if layer == 0:
+        output = classifier.layer0.get_conv_value()
+    elif layer == 1:
+        output = classifier.layer1.get_conv_value()
+    elif layer == 2:
+        output = classifier.layer2.get_conv_value()
+    elif layer == 3:
+        output = classifier.layer3.get_conv_value()
+    elif layer == 4:
+        output = classifier.layer4.get_conv_value()
+    elif layer == 5:
+        output = classifier.layer5.get_conv_value()
+
+
+    ppm = theano.function(
+        inputs=[index],
+        outputs=output,
+        givens={
+            x: test_data[index * batch_size: (index + 1) * batch_size]  # ,
+            # y: test_labels
+        },
+        on_unused_input='warn'
+    )
+    # print ppm(0)
+    return ppm(0)
+
 
 
 
