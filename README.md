@@ -1,2 +1,2 @@
-# AL_CNN_Crowd
-Active learning CNN on Crowd density
+# CL_CNN_Crowd
+curriculum learning CNN on Crowd density/counter
