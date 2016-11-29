@@ -13,7 +13,7 @@ class CNN:
 
         seed = 8000
         rng = numpy.random.RandomState(seed)
-        self.nkerns = [32, 50, 64, 50, 32, 20]
+        self.nkerns = [32, 50, 64, 96, 128, 128, 256]
 
         self.batch_size = batch_size
         self.x = T.tensor4('x')  # the data is presented as rasterized images

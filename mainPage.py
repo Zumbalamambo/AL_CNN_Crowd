@@ -42,17 +42,6 @@ class Online_learning(QMainWindow, Ui_MainWindow):
         self.create_lbl_layers(self.cnn.nkerns)
         self.fill_image_weights()
 
-        # self.create_btn_Layers(self.cnn.nkerns)
-        # for idx in range(len(self.btn_L0)):
-        #     self.connect(self.btn_L0[idx], SIGNAL("clicked()"), partial(self.preview_layers, 0, idx))
-        # for idx in range(len(self.btn_L1)):
-        #     self.connect(self.btn_L1[idx], SIGNAL("clicked()"), partial(self.preview_layers, 1, idx))
-        # for idx in range(len(self.btn_L2)):
-        #     self.connect(self.btn_L2[idx], SIGNAL("clicked()"), partial(self.preview_layers, 2, idx))
-        # for idx in range(len(self.btn_L3)):
-        #     self.connect(self.btn_L3[idx], SIGNAL("clicked()"), partial(self.preview_layers, 3, idx))
-
-
     def prediction(self):
         sliced_imgs = Image_slicer(self.current_img_RGB, self.head_locations, False)
 
